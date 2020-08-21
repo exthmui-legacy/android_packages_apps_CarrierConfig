@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.PersistableBundle;
 import android.service.carrier.CarrierIdentifier;
 import android.service.carrier.CarrierService;
+import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,6 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -134,6 +136,12 @@ public class DefaultCarrierConfigService extends CarrierService {
         }
         catch (IOException | XmlPullParserException e) {
             Log.e(TAG, e.toString());
+        }
+
+        Locale locale = getResources().getConfiguration().getLocales().get(0);
+        String localCarrierName = config.getString(CarrierConfigManager.KEY_CARRIER_NAME_STRING + "_" + locale.getLanguage() + "-" + locale.getCountry(), "");
+        if (!TextUtils.isEmpty(localCarrierName)) {
+            config.putString(CarrierConfigManager.KEY_CARRIER_NAME_STRING, localCarrierName);
         }
 
         return config;
