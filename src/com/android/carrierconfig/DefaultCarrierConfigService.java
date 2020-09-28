@@ -138,13 +138,24 @@ public class DefaultCarrierConfigService extends CarrierService {
             Log.e(TAG, e.toString());
         }
 
-        Locale locale = getResources().getConfiguration().getLocales().get(0);
-        String localCarrierName = config.getString(CarrierConfigManager.KEY_CARRIER_NAME_STRING + "_" + locale.getLanguage() + "-" + locale.getCountry(), "");
-        if (!TextUtils.isEmpty(localCarrierName)) {
-            config.putString(CarrierConfigManager.KEY_CARRIER_NAME_STRING, localCarrierName);
-        }
+        getLocalCarrierName(config);
 
         return config;
+    }
+
+    private void getLocalCarrierName(PersistableBundle config) {
+        Locale locale = getResources().getConfiguration().getLocales().get(0);
+        String localCarrierName = config.getString(CarrierConfigManager.KEY_CARRIER_NAME_STRING + "_" + locale.getLanguage() + "-" + locale.getCountry(), null);
+        if (TextUtils.isEmpty(localCarrierName)) {
+            String carrierNameWithLang = CarrierConfigManager.KEY_CARRIER_NAME_STRING + "_" + locale.getLanguage();
+            for (String key : config.keySet()) {
+                if (key.startsWith(carrierNameWithLang)) {
+                    localCarrierName = config.getString(key, null);
+                    break;
+                }
+            }
+        }
+        config.putString(CarrierConfigManager.KEY_CARRIER_NAME_STRING, localCarrierName);
     }
 
     /**
